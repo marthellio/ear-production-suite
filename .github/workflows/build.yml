@@ -11,6 +11,7 @@ jobs:
       CCACHE_MAXSIZE: '500M'
       CCACHE_WIN_VERSION: 3.7.7
       MACOSX_DEPLOYMENT_TARGET: 10.12
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
     strategy:
       matrix:
         config:
