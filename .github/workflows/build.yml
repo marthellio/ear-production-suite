@@ -23,6 +23,7 @@ jobs:
               -DCMAKE_C_COMPILER_LAUNCHER=ccache
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
               -DCMAKE_BUILD_TYPE=Release
+              -DCMAKE_CXX_FLAGS="/Zi /EHsc"
               -GNinja        
           #- {
           #    name: "Ubuntu 20.04 GCC",
@@ -38,6 +39,7 @@ jobs:
               -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
               -DCMAKE_BUILD_TYPE=Release
               -DCMAKE_OSX_DEPLOYMENT_TARGET="10.12"
+              -DCMAKE_CXX_FLAGS="-g"
               -GNinja
     steps:
       # checkout to workspace
