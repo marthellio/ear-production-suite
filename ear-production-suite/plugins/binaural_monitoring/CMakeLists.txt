@@ -1,3 +1,7 @@
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(SOURCES_BINAURAL_MONITORING
     ${CMAKE_CURRENT_SOURCE_DIR}/../shared/binary_data.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../shared/components/level_meter_calculator.cpp
