@@ -28,7 +28,7 @@ public:
 
 private:
   std::string curStatusText{ "Disconnected" };
-  void updateStatusText(std::string& newStatus);
+  void updateStatusText(std::string newStatus);
   void updateStatusText();
   void updateStatusTextForListenAttempt();
 
