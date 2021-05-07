@@ -24,9 +24,13 @@ add_juce_vst3_plugin(
 	
 target_include_directories(ear_binaural_monitoring_VST3 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(ear_binaural_monitoring_VST3 PRIVATE ear-plugin-base bear)
+add_dependencies(ear_binaural_monitoring_VST3 default_tensorfile)
 install(TARGETS ear_binaural_monitoring_VST3 COMPONENT Plugins DESTINATION "${EPS_PLUGIN_INSTALL_PREFIX}VST3/ear-production-suite")
 
 ExternalProject_Get_Property(default_tensorfile DOWNLOADED_FILE)
+add_custom_command(TARGET ear_binaural_monitoring_VST3 POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${DOWNLOADED_FILE} "$<TARGET_FILE_DIR:ear_binaural_monitoring_VST3>/default.tf"
+)
 if(APPLE)
     install(FILES ${DOWNLOADED_FILE} DESTINATION "${EPS_PLUGIN_INSTALL_PREFIX}VST3/ear-production-suite/EAR Binaural Monitoring.vst3/Contents/MacOS")
 else()
