@@ -8,6 +8,8 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     eps_set_install_paths()
 endif()
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 include(CTest)
 option(BUILD_TESTING "Build tests" ON)
 set(Boost_USE_STATIC_LIBS ON)
@@ -35,7 +37,7 @@ list(APPEND ear_production_suite_vsts
 	scene_VST3)
 foreach(tgt ${ear_production_suite_vsts})
 	if(TARGET ${tgt})
-		set_target_properties(${tgt} PROPERTIES FOLDER EPS-ear_production_suite_vsts)
+		set_target_properties(${tgt} PROPERTIES FOLDER EPS/vst-ear_production_suite)
 	endif()
 endforeach()
 list(APPEND ear_production_suite_vsts-tests
@@ -55,7 +57,7 @@ list(APPEND ear_production_suite_vsts-tests
 	variable_block_adapter_tests)
 foreach(tgt ${ear_production_suite_vsts-tests})
 	if(TARGET ${tgt})
-		set_target_properties(${tgt} PROPERTIES FOLDER EPS-ear_production_suite_vsts-tests)
+		set_target_properties(${tgt} PROPERTIES FOLDER EPS/vst-tests)
 	endif()
 endforeach()
 list(APPEND ear_production_suite_vsts-mockups
@@ -64,7 +66,7 @@ list(APPEND ear_production_suite_vsts-mockups
 	scene_mockup)
 foreach(tgt ${ear_production_suite_vsts-mockups})
 	if(TARGET ${tgt})
-		set_target_properties(${tgt} PROPERTIES FOLDER EPS-ear_production_suite_vsts-mockups)
+		set_target_properties(${tgt} PROPERTIES FOLDER EPS/vst-mockups)
 	endif()
 endforeach()
 
@@ -74,7 +76,7 @@ list(APPEND reaper_extension
 	reaper_adm_object)
 foreach(tgt ${reaper_extension})
 	if(TARGET ${tgt})
-		set_target_properties(${tgt} PROPERTIES FOLDER EPS-reaper_extension)
+		set_target_properties(${tgt} PROPERTIES FOLDER EPS/reaper_extension)
 	endif()
 endforeach()
 list(APPEND reaper_extension-tests
@@ -82,13 +84,13 @@ list(APPEND reaper_extension-tests
 	testreaper_adm)
 foreach(tgt ${reaper_extension-tests})
 	if(TARGET ${tgt})
-		set_target_properties(${tgt} PROPERTIES FOLDER EPS-reaper_extension-tests)
+		set_target_properties(${tgt} PROPERTIES FOLDER EPS/reaper_extension-tests)
 	endif()
 endforeach()
 
 add_subdirectory(reaper_adm_stem_plugin)
 if(TARGET adm_export_source_VST3)
-	set_target_properties(adm_export_source_VST3 PROPERTIES FOLDER EPS-adm_export_source_vst)
+	set_target_properties(adm_export_source_VST3 PROPERTIES FOLDER EPS/vst-adm_export_source)
 endif()
 
 add_subdirectory(tools)
@@ -97,11 +99,11 @@ list(APPEND tools
 	project_upgrade)
 foreach(tgt ${tools})
 	if(TARGET ${tgt})
-		set_target_properties(${tgt} PROPERTIES FOLDER EPS-tools)
+		set_target_properties(${tgt} PROPERTIES FOLDER EPS/tools)
 	endif()
 endforeach()
 if(TARGET test_project_upgrade)
-	set_target_properties(test_project_upgrade PROPERTIES FOLDER EPS-tools-tests)
+	set_target_properties(test_project_upgrade PROPERTIES FOLDER EPS/tools-tests)
 endif()
 
 

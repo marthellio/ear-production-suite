@@ -7,7 +7,7 @@ set(EAR_EXAMPLES OFF CACHE BOOL " " FORCE)
 set(EAR_PACKAGE_AND_INSTALL OFF CACHE BOOL " " FORCE)
 set(BUILD_SHARED_LIBS OFF)
 #add_subdirectory(libear) ### COMMENTED OUT while using BEARs custom EAR
-#set_target_properties(ear PROPERTIES FOLDER libear)
+#set_target_properties(ear libear_resource_embedder PROPERTIES FOLDER libear)
 
 #libadm
 set(BUILD_TESTING OFF)
@@ -19,15 +19,12 @@ set_target_properties(adm resource_embedder PROPERTIES FOLDER libadm)
 
 #libbw64
 add_subdirectory(libbw64)
-
-#add_library(uuid INTERFACE)
-#target_include_directories(uuid INTERFACE ${PROJECT_SOURCE_DIR}/submodules/stduuid/include)
 add_library(IRT::bw64 INTERFACE IMPORTED GLOBAL)
 set_target_properties(IRT::bw64 PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libbw64/include>)
 
+#googletest
 set(BUILD_SHARED_LIBS OFF)
-
 set(INSTALL_GTEST OFF CACHE BOOL "Install gtest" FORCE)
 set(gtest_force_shared_crt ON)
 add_subdirectory(googletest)
@@ -84,7 +81,7 @@ foreach(VISR_TARGET_NAME ${VISR_TARGET_NAMES} )
   set_target_properties(${VISR_TARGET} PROPERTIES PUBLIC_HEADER "" )
   set_target_properties(${VISR_TARGET} PROPERTIES PRIVATE_HEADER "" )
 endforeach()
-set_target_properties(ffts_static kissfft_static PROPERTIES FOLDER VISR-3rd)
+set_target_properties(ffts_static kissfft_static PROPERTIES FOLDER VISR/3rd)
 
 ### BEAR
 
@@ -93,8 +90,8 @@ set(BEAR_UNIT_TESTS OFF CACHE BOOL "bear unit tests" FORCE)
 set(BEAR_DOWNLOAD_DATA ON CACHE BOOL "bear data files" FORCE)
 set(BEAR_VISR_LIB_TYPE "${VISR_TARGET_TYPE}" CACHE BOOL "bear visr lib type" FORCE)
 add_subdirectory(rd-audio-bear/visr_bear)
-set_target_properties(bear libear_resource_embedder PROPERTIES FOLDER bear)
-set_target_properties(ear PROPERTIES FOLDER libear)
+set_target_properties(bear PROPERTIES FOLDER bear)
+set_target_properties(ear libear_resource_embedder PROPERTIES FOLDER libear)
 foreach(VISR_TARGET_NAME ${VISR_TARGET_NAMES} )
   add_dependencies(bear "${VISR_TARGET_NAME}_${VISR_TARGET_TYPE}")
 endforeach()
