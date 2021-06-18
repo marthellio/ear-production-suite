@@ -22,6 +22,8 @@ list(APPEND ear_production_suite_vsts
 	ear_logging_server
 	ear-plugin-base
 	direct_speakers_VST3 
+	object_VST3
+	hoa_VST3
 	ear_binaural_monitoring_VST3
 	ear_monitoring_0+2+0_VST3
 	ear_monitoring_0+5+0_VST3
@@ -33,7 +35,6 @@ list(APPEND ear_production_suite_vsts
 	ear_monitoring_4+7+0_VST3
 	ear_monitoring_4+9+0_VST3
 	ear_monitoring_9+10+3_VST3
-	object_VST3
 	scene_VST3)
 foreach(tgt ${ear_production_suite_vsts})
 	if(TARGET ${tgt})
