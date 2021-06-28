@@ -4,6 +4,7 @@
 
 #include "hoa_backend.hpp"
 #include "../../shared/components/level_meter_calculator.hpp"
+#include "../../../../reaper-adm-extension/src/reaper_adm/common_definition_helper.h"
 
 #include <memory>
 
@@ -49,6 +50,8 @@ class HoaAudioProcessor : public AudioProcessor {
 
   void updateTrackProperties(const TrackProperties& properties) override;
 
+  AdmCommonDefinitionHelper admCommonDefinitions{};  // ME added
+
   AudioParameterInt* getRouting() { return routing_; }
   /* Old DS Code
   AudioParameterInt* getSpeakerSetupIndex() { return speakerSetupIndex_; }
@@ -70,6 +73,7 @@ class HoaAudioProcessor : public AudioProcessor {
   ear::plugin::communication::ConnectionId connectionId_;
 
   AudioParameterInt* routing_;
+  AudioParameterInt* hoaTypeIndex_;//ME add
   /* Old DS Code
   AudioParameterInt* speakerSetupIndex_;
   */
