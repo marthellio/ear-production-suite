@@ -4,7 +4,7 @@
 
 #include "hoa_backend.hpp"
 #include "../../shared/components/level_meter_calculator.hpp"
-#include "../../../../reaper-adm-extension/src/reaper_adm/common_definition_helper.h"
+#include "common_definition_helper.h"
 
 #include <memory>
 

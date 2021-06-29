@@ -8,6 +8,8 @@ set(SOURCES_HOA_INPUT
     ${CMAKE_CURRENT_SOURCE_DIR}/../shared/components/ear_slider_label.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../shared/components/level_meter_calculator.cpp
 	
+    ${PROJECT_SOURCE_DIR}/../common_helpers/common_definition_helper.cpp
+
     src/hoa_frontend_connector.cpp
     src/hoa_plugin_editor.cpp
     src/hoa_plugin_processor.cpp
