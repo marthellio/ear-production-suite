@@ -69,7 +69,7 @@ class HoaAudioProcessor : public AudioProcessor {
     return connector_.get();
   }
   //ME add not sure if good
-  //void setNumHoaTypes(int numHoaTypes);
+  void setNumHoaTypes(int &numHoaTypes);
   //ME end
 
 
@@ -79,7 +79,7 @@ class HoaAudioProcessor : public AudioProcessor {
   AudioParameterInt* routing_;
   AudioParameterInt* hoaTypeIndex_;//ME add, similar to DS
   AudioParameterBool* bypass_;
-  //AudioParameterInt* numHoaTypes_;//ME added, not sure if good
+  int numHoaTypes_;//ME added, not sure if good
 
   std::unique_ptr<ear::plugin::ui::HoaJuceFrontendConnector>
       connector_;
