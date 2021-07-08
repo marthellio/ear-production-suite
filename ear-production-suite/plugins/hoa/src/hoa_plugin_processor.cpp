@@ -134,7 +134,7 @@ MidiBuffer& midiMessages) {
 
 bool HoaAudioProcessor::hasEditor() const { return true; }
 
-AudioProcessorEditor* HoaAudioProcessor::createEditor() {//(1)
+AudioProcessorEditor* HoaAudioProcessor::createEditor() {//(1..)
   return new HoaAudioProcessorEditor(this);
 }
 
