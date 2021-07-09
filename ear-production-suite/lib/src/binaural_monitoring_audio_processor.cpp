@@ -13,8 +13,7 @@ namespace plugin {
 BinauralMonitoringAudioProcessor::BinauralMonitoringAudioProcessor(
     std::size_t objChannels, std::size_t dsChannels, std::size_t hoaChannels,
     std::size_t sampleRate, std::size_t blockSize, std::string dataFilePath) {
-  assert(hoaChannels ==
-         0);  // Dev reminder that HOA isn't tested (it's missing in a whole
+  //assert(hoaChannels ==0);  // Dev reminder that HOA isn't tested (it's missing in a whole
               // chunk of the EPS anyway so unable to test at this early stage)
 
   framesProcessed = 0;

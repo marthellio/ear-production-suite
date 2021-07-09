@@ -6,6 +6,7 @@
 #include "ear-plugin-base/export.h"
 #include "scene_gains_calculator.hpp"
 #include "listener_orientation.hpp"
+#include "../../common_helpers/common_definition_helper.h"
 
 #include <string>
 #include <memory>

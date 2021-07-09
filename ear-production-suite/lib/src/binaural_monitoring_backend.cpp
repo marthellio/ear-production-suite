@@ -165,33 +165,40 @@ void BinauralMonitoringBackend::onSceneReceived(proto::SceneStore store) {
 
   std::lock_guard<std::mutex> lockDsIds(activeDirectSpeakersIdsMutex_);
   std::lock_guard<std::mutex> lockObjIds(activeObjectIdsMutex_);
+  std::lock_guard<std::mutex> lockHoaIds(activeHoaIdsMutex_);//ME add
   activeDirectSpeakersIds.clear();
   activeObjectIds.clear();
+  activeHoaIds.clear();//ME add
 
   for (const auto& item : store.items()) {
     if (item.has_connection_id() &&
         item.connection_id() != "00000000-0000-0000-0000-000000000000" &&
         item.connection_id() != "") {
-      /* TODO: HOA can not be implemented at the moment due to incomplete
-      protobuf if(item.has_hoa_metadata()) { if(item.changed()) {
+      // TODO: HOA can not be implemented at the moment due to incomplete protobuf
+      
+      if(item.has_hoa_metadata()) { 
+        if(item.changed()) {
           {
             std::lock_guard<std::mutex> lock(latestHoaTypeMetadataMutex_);
-            removeFromMap<ConnId,
-              HoaEarMetadataAndRouting>(
-                latestHoaTypeMetadata, item.connection_id());
+            removeFromMap<ConnId,HoaEarMetadataAndRouting>(latestHoaTypeMetadata, item.connection_id());
           }
           {
-            std::lock_guard<std::mutex>
-      lock(latestMonitoringItemMetadataMutex_); setInMap<ConnId,
-      ear::plugin::proto::MonitoringItemMetadata>( latestMonitoringItemMetadata,
-      item.connection_id(), item);
+            std::lock_guard<std::mutex>lock(latestMonitoringItemMetadataMutex_); 
+            setInMap<ConnId,ear::plugin::proto::MonitoringItemMetadata>( latestMonitoringItemMetadata,item.connection_id(), item);
           }
         }
         activeHoaIds.push_back(item.connection_id());
         //totalHoaChannels += item.hoa_metadata().???(); // TODO: Proto message
-      currently incomplete for HOA
+        //auto hoaId = getLatestHoaTypeMetadata(item.connection_id());
+        auto commonDefinitionHelper = AdmCommonDefinitionHelper::getSingleton();
+        auto hoaId = item.hoa_metadata().hoatypeindex();
+        auto pfData = commonDefinitionHelper->getPackFormatData(4, hoaId + 1);
+        auto cfCount = pfData->relatedChannelFormats.size();
+        totalHoaChannels += cfCount;
+
+      //currently incomplete for HOA
       }
-      */
+      
       if (item.has_ds_metadata()) {
         if (item.changed()) {
           {
