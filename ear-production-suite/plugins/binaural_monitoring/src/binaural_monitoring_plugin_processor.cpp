@@ -227,7 +227,7 @@ void EarBinauralMonitoringAudioProcessor::processBlock(
     if (md->startingChannel >= 0) {
       for (int index = 0; index < md->earMetadata.size(); index++) {
         processor_->pushBearMetadata(md->startingChannel + index,
-                                     &(md->earMetadata[index]));
+                                     &(md->earMetadata[index]));//earMetadata is a vector for DS but not for obj or HOA
       }
     }
   }
