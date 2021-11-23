@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <optional>
 #include "helper/common_definition_helper.h"
 
 namespace ear {
@@ -27,7 +28,7 @@ struct Routing {
 class SceneGainsCalculator {
  public:
   SceneGainsCalculator(Layout outputLayout, int inputChannelCount);
-  bool update(proto::SceneStore store);
+  void update(proto::SceneStore store);
   Eigen::MatrixXf directGains();
   Eigen::MatrixXf diffuseGains();
 
@@ -44,18 +45,30 @@ class SceneGainsCalculator {
   // _previous_ routing values
   std::vector<Routing> updateRoutingCache(const proto::SceneStore &store);
 
-  int currentIndex_;
   void resize(ear::Layout &ouputLayout, std::size_t inputChannelCount);
   void clear();
+
+  std::mutex gainVectorsMutex_;
   std::vector<std::vector<float>> direct_;
   std::vector<std::vector<float>> diffuse_;
+
+  std::mutex gainCalculatorsMutex_;
   ear::GainCalculatorObjects objectCalculator_;
   ear::GainCalculatorDirectSpeakers directSpeakersCalculator_;
   ear::GainCalculatorHOA hoaCalculator_;
+
+  std::mutex routingCacheMutex_;
   std::map<communication::ConnectionId, Routing> routingCache_;
+
   std::mutex commonDefinitionHelperMutex_;
   AdmCommonDefinitionHelper commonDefinitionHelper{};
+
+  std::mutex allActiveIdsMutex_;
   std::vector<std::string> allActiveIds;
+
+  std::mutex latestStoreMutex_;
+  std::optional<proto::SceneStore> latestStore;
+
 };
 
 }  // namespace plugin
