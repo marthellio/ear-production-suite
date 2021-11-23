@@ -13,35 +13,59 @@ SceneGainsCalculator::SceneGainsCalculator(ear::Layout outputLayout,
       directSpeakersCalculator_{outputLayout},
       hoaCalculator_{outputLayout} {
   resize(outputLayout, static_cast<std::size_t>(inputChannelCount));
+
+  std::lock_guard<std::mutex> lock(commonDefinitionHelperMutex_);
   commonDefinitionHelper.getElementRelationships();
-  allActiveIds.reserve(inputChannelCount);
 }
 
-bool SceneGainsCalculator::update(proto::SceneStore store) {
+void SceneGainsCalculator::update(proto::SceneStore store) {
   // Called by NNG callback on thread with small stack.
   // Launch task in another thread to overcome stack limitation.
-  auto future = std::async(std::launch::async, [this, store]() {
-    for (auto id : removedIds(store)) {
-      auto routing = routingCache_[id];
-      for (int i = 0; i < routing.size; ++i) {
-        std::fill(direct_[routing.track + i].begin(),
-                  direct_[routing.track + i].end(), 0.0f);
-        std::fill(diffuse_[routing.track + i].begin(),
-                  diffuse_[routing.track + i].end(), 0.0f);
+
+  {
+    std::lock_guard<std::mutex> lock(storeToProcessMutex_);
+    bool jobAlreadyScheduled = storeToProcess.has_value(); // If it already had a value, then a job would have already been set up
+    storeToProcess = store;
+    if(jobAlreadyScheduled) return;
+  }
+
+  auto future = std::async(std::launch::async, [this]() {
+
+    std::lock_guard<std::mutex> lockG(gainVectorsMutex_);
+    std::lock_guard<std::mutex> lockS(storeToProcessMutex_);
+
+    {
+      std::lock_guard<std::mutex> lockR(routingCacheMutex_);
+      for(auto id : removedIds(*storeToProcess)) {
+        auto routing = routingCache_[id];
+        for(int i = 0; i < routing.size; ++i) {
+          std::fill(direct_[routing.track + i].begin(),
+                    direct_[routing.track + i].end(), 0.0f);
+          std::fill(diffuse_[routing.track + i].begin(),
+                    diffuse_[routing.track + i].end(), 0.0f);
+        }
+        routingCache_.erase(id);
       }
-      routingCache_.erase(id);
-    }
-    for (auto routing : updateRoutingCache(store)) {
-      for (int i = 0; i < routing.size; ++i) {
-        std::fill(direct_[routing.track + i].begin(),
-                  direct_[routing.track + i].end(), 0.0f);
-        std::fill(diffuse_[routing.track + i].begin(),
-                  diffuse_[routing.track + i].end(), 0.0f);
+      for(auto routing : updateRoutingCache(*storeToProcess)) {
+        for(int i = 0; i < routing.size; ++i) {
+          std::fill(direct_[routing.track + i].begin(),
+                    direct_[routing.track + i].end(), 0.0f);
+          std::fill(diffuse_[routing.track + i].begin(),
+                    diffuse_[routing.track + i].end(), 0.0f);
+        }
       }
     }
 
-    for (const auto& item : store.monitoring_items()) {
-      bool newItem = std::find(allActiveIds.begin(), allActiveIds.end(), item.connection_id()) == allActiveIds.end();
+    std::lock_guard<std::mutex> lockC(gainCalculatorsMutex_);
+
+    for (const auto& item : storeToProcess->monitoring_items()) {
+
+      bool newItem = true;
+      {
+        std::lock_guard<std::mutex> lockA(allActiveIdsMutex_);
+        newItem = std::find(allActiveIds.begin(), allActiveIds.end(), item.connection_id()) == allActiveIds.end();
+      }
+
       if (newItem || item.changed()) {
         if (item.has_ds_metadata()) {
           auto earMetadata =
@@ -93,16 +117,19 @@ bool SceneGainsCalculator::update(proto::SceneStore store) {
     }
 
     // Used for setting the newItem flag next time around
-    allActiveIds.clear();
-    for(const auto& item : store.monitoring_items()) {
-      allActiveIds.push_back(item.connection_id());
+    {
+      std::lock_guard<std::mutex> lockA(allActiveIdsMutex_);
+      allActiveIds.clear();
+      for(const auto& item : storeToProcess->monitoring_items()) {
+        allActiveIds.push_back(item.connection_id());
+      }
     }
+
+    storeToProcess.reset();
 
   });
 
   future.get();
-
-  return true;
 }
 
 namespace {
@@ -190,15 +217,23 @@ std::vector<Routing> SceneGainsCalculator::updateRoutingCache(
 }
 
 void SceneGainsCalculator::resize(ear::Layout& outputLayout,
-                                  std::size_t inputChannelCount) {
-  direct_.resize(inputChannelCount);
-  diffuse_.resize(inputChannelCount);
-  auto outputChannelCount = outputLayout.channels().size();
-  for (auto& gainVec : direct_) {
-    gainVec.resize(outputChannelCount, 0.0f);
+                                  std::size_t inputChannelCount)
+{
+  {
+    std::lock_guard<std::mutex> lock(gainVectorsMutex_);
+    direct_.resize(inputChannelCount);
+    diffuse_.resize(inputChannelCount);
+    auto outputChannelCount = outputLayout.channels().size();
+    for(auto& gainVec : direct_) {
+      gainVec.resize(outputChannelCount, 0.0f);
+    }
+    for(auto& gainVec : diffuse_) {
+      gainVec.resize(outputChannelCount, 0.0f);
+    }
   }
-  for (auto& gainVec : diffuse_) {
-    gainVec.resize(outputChannelCount, 0.0f);
+  {
+    std::lock_guard<std::mutex> lock(allActiveIdsMutex_);
+    allActiveIds.reserve(inputChannelCount);
   }
 }
 
