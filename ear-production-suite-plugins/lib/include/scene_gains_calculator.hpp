@@ -66,8 +66,8 @@ class SceneGainsCalculator {
   std::mutex allActiveIdsMutex_;
   std::vector<std::string> allActiveIds;
 
-  std::mutex latestStoreMutex_;
-  std::optional<proto::SceneStore> latestStore;
+  std::mutex storeToProcessMutex_;
+  std::optional<proto::SceneStore> storeToProcess;
 
 };
 

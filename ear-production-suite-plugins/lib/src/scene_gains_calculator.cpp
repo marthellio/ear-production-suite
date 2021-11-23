@@ -23,20 +23,20 @@ void SceneGainsCalculator::update(proto::SceneStore store) {
   // Launch task in another thread to overcome stack limitation.
 
   {
-    std::lock_guard<std::mutex> lock(latestStoreMutex_);
-    bool scheduleJob = !latestStore.has_value(); // If it already had a value, then a job would have already been set up
-    latestStore = store;
-    if(!scheduleJob) return;
+    std::lock_guard<std::mutex> lock(storeToProcessMutex_);
+    bool jobAlreadyScheduled = storeToProcess.has_value(); // If it already had a value, then a job would have already been set up
+    storeToProcess = store;
+    if(jobAlreadyScheduled) return;
   }
 
   auto future = std::async(std::launch::async, [this]() {
 
     std::lock_guard<std::mutex> lockG(gainVectorsMutex_);
-    std::lock_guard<std::mutex> lockS(latestStoreMutex_);
+    std::lock_guard<std::mutex> lockS(storeToProcessMutex_);
 
     {
       std::lock_guard<std::mutex> lockR(routingCacheMutex_);
-      for(auto id : removedIds(*latestStore)) {
+      for(auto id : removedIds(*storeToProcess)) {
         auto routing = routingCache_[id];
         for(int i = 0; i < routing.size; ++i) {
           std::fill(direct_[routing.track + i].begin(),
@@ -46,7 +46,7 @@ void SceneGainsCalculator::update(proto::SceneStore store) {
         }
         routingCache_.erase(id);
       }
-      for(auto routing : updateRoutingCache(*latestStore)) {
+      for(auto routing : updateRoutingCache(*storeToProcess)) {
         for(int i = 0; i < routing.size; ++i) {
           std::fill(direct_[routing.track + i].begin(),
                     direct_[routing.track + i].end(), 0.0f);
@@ -58,7 +58,7 @@ void SceneGainsCalculator::update(proto::SceneStore store) {
 
     std::lock_guard<std::mutex> lockC(gainCalculatorsMutex_);
 
-    for (const auto& item : latestStore->monitoring_items()) {
+    for (const auto& item : storeToProcess->monitoring_items()) {
 
       bool newItem = true;
       {
@@ -120,12 +120,12 @@ void SceneGainsCalculator::update(proto::SceneStore store) {
     {
       std::lock_guard<std::mutex> lockA(allActiveIdsMutex_);
       allActiveIds.clear();
-      for(const auto& item : latestStore->monitoring_items()) {
+      for(const auto& item : storeToProcess->monitoring_items()) {
         allActiveIds.push_back(item.connection_id());
       }
     }
 
-    latestStore.reset();
+    storeToProcess.reset();
 
   });
 
